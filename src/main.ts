@@ -1,5 +1,6 @@
 import { Plugin, WorkspaceLeaf } from "obsidian";
 import { SkryptView, VIEW_TYPE_SKRYPT } from "./view";
+import { registerFrontmatterPanel } from "./frontmatter-panel";
 
 export default class SkryptPlugin extends Plugin {
 	async onload(): Promise<void> {
@@ -12,6 +13,8 @@ export default class SkryptPlugin extends Plugin {
 			name: "Open Skrypt sidebar",
 			callback: () => this.activateView(),
 		});
+
+		registerFrontmatterPanel(this.app, (cb) => this.registerMarkdownPostProcessor(cb));
 	}
 
 	async onunload(): Promise<void> {

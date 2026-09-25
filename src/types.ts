@@ -1,4 +1,4 @@
-export type SkryptType = "note" | "character" | "setting";
+export type SkryptType = "note" | "character" | "location";
 
 export interface SkryptFrontmatter {
 	id: string;
@@ -47,13 +47,15 @@ export const TYPE_SCHEMAS: Record<SkryptType, Record<string, FieldDef>> = {
 		conflict: { kind: "text" },
 		"character-arc": { kind: "text" },
 		"first-appearance": { kind: "string" },
+		links: { kind: "list" },
 	},
-	setting: {
+	location: {
 		"location-type": { kind: "string" },
 		region: { kind: "string" },
 		description: { kind: "text" },
 		culture: { kind: "text" },
 		"first-appearance": { kind: "string" },
+		links: { kind: "list" },
 	},
 	note: {
 		tags: { kind: "list" },

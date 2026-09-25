@@ -5,7 +5,7 @@ import { ensureFolder } from "./project";
 export const SECTION_FOLDERS: Record<Exclude<SkryptType, "note"> | "note", string> = {
 	note: "Notes",
 	character: "Characters",
-	setting: "Settings",
+	location: "Locations",
 };
 
 /** Sanitizes a title into a safe filename fragment. */

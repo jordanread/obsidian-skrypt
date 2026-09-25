@@ -3,7 +3,7 @@
 	"name": "Skrypt",
 	"version": "0.1.0",
 	"minAppVersion": "1.4.0",
-	"description": "Story-bible sidebar for multi-project vaults: general notes, characters, and settings alongside your manuscript.",
+	"description": "Story-bible sidebar for multi-project vaults: general notes, characters, and locations alongside your manuscript.",
 	"author": "Jordan",
 	"authorUrl": "",
 	"isDesktopOnly": false

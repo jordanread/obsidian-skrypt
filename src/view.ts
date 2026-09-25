@@ -14,7 +14,7 @@ interface SectionDef {
 const SECTIONS: SectionDef[] = [
 	{ type: "note", label: "General Notes" },
 	{ type: "character", label: "Characters" },
-	{ type: "setting", label: "Settings" },
+	{ type: "location", label: "Locations" },
 ];
 
 export class SkryptView extends ItemView {
