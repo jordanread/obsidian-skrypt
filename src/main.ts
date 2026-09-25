@@ -14,7 +14,7 @@ export default class SkryptPlugin extends Plugin {
 			callback: () => this.activateView(),
 		});
 
-		registerFrontmatterPanel(this.app, this);
+		registerFrontmatterPanel(this.app, (cb) => this.registerMarkdownPostProcessor(cb));
 	}
 
 	async onunload(): Promise<void> {
