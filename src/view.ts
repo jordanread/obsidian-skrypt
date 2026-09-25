@@ -2,19 +2,19 @@ import { ItemView, WorkspaceLeaf, TFile, TFolder, Notice } from "obsidian";
 import { findProjects, projectForPath } from "./project";
 import { createSkryptNote, SECTION_FOLDERS, ownFolderFor } from "./notes";
 import { SkryptProject, SkryptType } from "./types";
-import { promptForTitle } from "./title-modal";
 
 export const VIEW_TYPE_SKRYPT = "skrypt-sidebar";
 
 interface SectionDef {
 	type: SkryptType;
 	label: string;
+	singular: string;
 }
 
 const SECTIONS: SectionDef[] = [
-	{ type: "note", label: "General Notes" },
-	{ type: "character", label: "Characters" },
-	{ type: "location", label: "Locations" },
+	{ type: "note", label: "General Notes", singular: "Note" },
+	{ type: "character", label: "Characters", singular: "Character" },
+	{ type: "location", label: "Locations", singular: "Location" },
 ];
 
 export class SkryptView extends ItemView {
@@ -99,35 +99,56 @@ export class SkryptView extends ItemView {
 		});
 	}
 
-	private renderSection(container: Element, project: SkryptProject, section: SectionDef): void {
-		const wrap = container.createDiv({ cls: "skrypt-section" });
-		const header = wrap.createDiv({ cls: "skrypt-section-header" });
-		header.createEl("span", { text: section.label, cls: "skrypt-section-title" });
-		const addBtn = header.createEl("button", { text: "+ New", cls: "skrypt-add-btn" });
-		addBtn.addEventListener("click", async () => {
-			const title = await promptForTitle(this.app, section.label);
+	/** The trailing "type a title, hit Enter" row Longform uses for "New Scene". */
+	private renderCreateRow(
+		parent: HTMLElement,
+		placeholder: string,
+		onCreate: (title: string) => Promise<void>
+	): void {
+		const row = parent.createDiv({ cls: "skrypt-create-row" });
+		const input = row.createEl("input", {
+			type: "text",
+			cls: "skrypt-create-input",
+			attr: { placeholder: `New ${placeholder}` },
+		});
+		input.addEventListener("keydown", async (evt) => {
+			if (evt.key !== "Enter") return;
+			const title = input.value.trim();
 			if (!title) return;
+			input.disabled = true;
 			try {
-				const file = await createSkryptNote(this.app, { project, type: section.type, title });
-				await this.app.workspace.getLeaf(false).openFile(file);
+				await onCreate(title);
+				input.value = "";
 			} catch (e) {
 				new Notice(`Skrypt: couldn't create note (${(e as Error).message})`);
+			} finally {
+				input.disabled = false;
+				input.focus();
 			}
 		});
+	}
+
+	private renderSection(container: Element, project: SkryptProject, section: SectionDef): void {
+		const wrap = container.createDiv({ cls: "skrypt-section" });
+		wrap.createDiv({ text: section.label, cls: "skrypt-section-title" });
 
 		const folderPath = `${project.folderPath}/${SECTION_FOLDERS[section.type]}`;
 		const folder = this.app.vault.getAbstractFileByPath(folderPath);
 		const list = wrap.createEl("ul", { cls: "skrypt-list" });
 
-		if (!(folder instanceof TFolder)) return;
+		if (folder instanceof TFolder) {
+			const entries = folder.children
+				.filter((f): f is TFile => f instanceof TFile && f.extension === "md")
+				.sort((a, b) => a.basename.localeCompare(b.basename));
 
-		const entries = folder.children
-			.filter((f): f is TFile => f instanceof TFile && f.extension === "md")
-			.sort((a, b) => a.basename.localeCompare(b.basename));
-
-		for (const file of entries) {
-			this.renderEntry(list, project, section, file);
+			for (const file of entries) {
+				this.renderEntry(list, project, section, file);
+			}
 		}
+
+		this.renderCreateRow(wrap, section.singular, async (title) => {
+			await createSkryptNote(this.app, { project, type: section.type, title });
+		});
 	}
 
 	private renderEntry(list: HTMLElement, project: SkryptProject, section: SectionDef, file: TFile): void {
@@ -152,29 +173,14 @@ export class SkryptView extends ItemView {
 		if (!this.expanded.has(key)) return;
 
 		const sub = item.createDiv({ cls: "skrypt-subsection" });
-		const subHeader = sub.createDiv({ cls: "skrypt-section-header" });
-		subHeader.createEl("span", { text: "Notes", cls: "skrypt-section-title skrypt-sub-title" });
-		const subAdd = subHeader.createEl("button", { text: "+ New", cls: "skrypt-add-btn" });
+		sub.createDiv({ text: "Notes", cls: "skrypt-section-title skrypt-sub-title" });
 
 		const cache = this.app.metadataCache.getFileCache(file);
 		const parentId = (cache?.frontmatter?.skrypt as { id?: string } | undefined)?.id;
 		const parentFolder = ownFolderFor(project, section.type, file.basename);
 
-		subAdd.addEventListener("click", async () => {
-			const title = await promptForTitle(this.app, `Note for ${file.basename}`);
-			if (!title) return;
-			const created = await createSkryptNote(this.app, {
-				project,
-				type: "note",
-				title,
-				parentId,
-				parentFolder,
-			});
-			await this.app.workspace.getLeaf(false).openFile(created);
-		});
-
-		const subFolder = this.app.vault.getAbstractFileByPath(`${parentFolder}/Notes`);
 		const subList = sub.createEl("ul", { cls: "skrypt-list skrypt-sublist" });
+		const subFolder = this.app.vault.getAbstractFileByPath(`${parentFolder}/Notes`);
 		if (subFolder instanceof TFolder) {
 			const subEntries = subFolder.children
 				.filter((f): f is TFile => f instanceof TFile && f.extension === "md")
@@ -184,5 +190,15 @@ export class SkryptView extends ItemView {
 				li.addEventListener("click", () => this.app.workspace.getLeaf(false).openFile(f));
 			}
 		}
+
+		this.renderCreateRow(sub, "Note", async (title) => {
+			await createSkryptNote(this.app, {
+				project,
+				type: "note",
+				title,
+				parentId,
+				parentFolder,
+			});
+		});
 	}
 }
