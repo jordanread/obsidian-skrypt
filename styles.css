@@ -1,0 +1,98 @@
+.skrypt-view {
+	padding: 8px;
+}
+
+.skrypt-project-picker {
+	width: 100%;
+	margin-bottom: 12px;
+}
+
+.skrypt-section {
+	margin-bottom: 14px;
+}
+
+.skrypt-section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 4px;
+}
+
+.skrypt-section-title {
+	font-weight: 600;
+	font-size: 0.85em;
+	text-transform: uppercase;
+	opacity: 0.75;
+}
+
+.skrypt-sub-title {
+	text-transform: none;
+	font-weight: 500;
+}
+
+.skrypt-add-btn {
+	font-size: 0.8em;
+	padding: 2px 8px;
+}
+
+.skrypt-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.skrypt-item-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 3px 2px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.skrypt-item-row:hover {
+	background: var(--background-modifier-hover);
+}
+
+.skrypt-item-title {
+	flex: 1;
+	cursor: pointer;
+}
+
+.skrypt-toggle {
+	background: none;
+	border: none;
+	cursor: pointer;
+	opacity: 0.6;
+}
+
+.skrypt-subsection {
+	margin-left: 16px;
+	padding-left: 8px;
+	border-left: 1px solid var(--background-modifier-border);
+}
+
+.skrypt-sublist .skrypt-item-title {
+	padding: 2px 2px;
+	display: block;
+}
+
+.skrypt-sublist li:hover {
+	background: var(--background-modifier-hover);
+}
+
+.skrypt-empty {
+	opacity: 0.7;
+	font-size: 0.9em;
+}
+
+.skrypt-title-input {
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.skrypt-modal-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
